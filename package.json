@@ -15,5 +15,15 @@
   "bugs": {
     "url": "https://github.com/ImChinaNB/wenku8dl/issues"
   },
-  "homepage": "https://github.com/ImChinaNB/wenku8dl#readme"
+  "homepage": "https://github.com/ImChinaNB/wenku8dl#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.0.0-rc.6",
+    "fs": "0.0.1-security",
+    "iconv-lite": "^0.6.2",
+    "path": "^0.12.7",
+    "querystring": "^0.2.1",
+    "url": "^0.11.0"
+  }
 }
