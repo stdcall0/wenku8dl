@@ -1,0 +1,19 @@
+{
+  "name": "wenku8dl",
+  "version": "1.0.0",
+  "description": "Wenku8.cn downloader (markdown output). Read lightnovels in your Kindle!",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImChinaNB/wenku8dl.git"
+  },
+  "author": "ImChinaNB",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ImChinaNB/wenku8dl/issues"
+  },
+  "homepage": "https://github.com/ImChinaNB/wenku8dl#readme"
+}
