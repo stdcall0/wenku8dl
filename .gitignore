@@ -1,3 +1,6 @@
+novels/
+novels/**
+
 # Logs
 logs
 *.log

@@ -7,8 +7,11 @@
 git clone https://github.com/ImChinaNB/wenku8dl.git
 cd wenku8dl
 npm install
-node main.js
+node index.js <novelID>
 ```
 
 ### TODO
-To be added...
+- [ ] image downloading
+- [ ] into a single MD file
+- [ ] basic text formating like `*` and `**`
+- [ ] proxies usages

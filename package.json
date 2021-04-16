@@ -2,7 +2,7 @@
   "name": "wenku8dl",
   "version": "1.0.0",
   "description": "Wenku8.cn downloader (markdown output). Read lightnovels in your Kindle!",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,7 +19,9 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
+    "chalk": "^4.1.0",
     "cheerio": "^1.0.0-rc.6",
+    "commander": "^7.2.0",
     "fs": "0.0.1-security",
     "iconv-lite": "^0.6.2",
     "path": "^0.12.7",
