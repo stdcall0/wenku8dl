@@ -41,7 +41,7 @@ options = {
 多个参数用空格隔开。
 
 ### Screenshots
-![screenshot gif](https://proj.imchinanb.xyz/wk8.gif)
+![screenshot gif](https://proj.imchinanb.xyz/wk8o.gif)
 ![screenshot gif](https://proj.imchinanb.xyz/epub.gif)
 
 ### TODO
