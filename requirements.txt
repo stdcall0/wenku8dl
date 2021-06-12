@@ -1,0 +1,9 @@
+beautifulsoup4==4.9.3
+bs4==0.0.1
+EbookLib==0.17.1
+fs==2.4.13
+future==0.18.2
+lxml==4.6.3
+mime==0.1.0
+requests==2.25.1
+urllib3==1.26.5
