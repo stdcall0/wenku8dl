@@ -11,7 +11,7 @@
 目前还不能下载无版权书~~懒得写~~，可以去原地址看看。
 
 可以通过编辑 `lib\constants.py` 中的 `options` 来调整选项，选项说明如下:
-```
+```python3
 options = {
   "forceCover": False, # 强制 epub 使用图书封面，而非从插图中自动推断。
   "moreAuthor": False, # 添加贡献者与发布者到 EPUB 元数据中。
