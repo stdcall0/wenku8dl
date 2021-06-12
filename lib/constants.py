@@ -50,7 +50,7 @@ HTML = r"""<?xml version="1.0" encoding="utf-8"?>
 INTRO = """<div class="center">
   <h1>%s</h1><br />
   <h3>Wenku8 ID: %d</h3><br />
-  ♡Made with love by <i>wk8toepub</i>♡<br />
+  ♡Made with love by <i>wenku8dl</i>♡<br />
 </div>"""
 # EPUB 全局 css 样式
 CSS = """body{padding:0;margin:0;line-height:1.2;text-align:justify}
