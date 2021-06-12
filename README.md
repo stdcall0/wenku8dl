@@ -42,6 +42,7 @@ options = {
 
 ### Screenshots
 ![screenshot gif](https://proj.imchinanb.xyz/wk8.gif)
+![screenshot gif](https://proj.imchinanb.xyz/epub.gif)
 
 ### TODO
 - [ ] 下载无版权小说
