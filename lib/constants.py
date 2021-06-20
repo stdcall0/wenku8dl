@@ -62,7 +62,7 @@ INTRO = lambda title, author, id: """
   <p class="titlet2 center">Wenku8 ID</p>
   <p class="titlet3 center">%d</p>
   <p><br/></p>
-  <h4>♡Made with love by <i>wenku8dl</i>♡</h4>
+  <p class="titlet3 center">♡Made with love by <i>wenku8dl</i>♡</p>
 """ % (title, author, id)
 # EPUB 封面模板
 COVER = lambda href: """
@@ -127,7 +127,7 @@ h2,h3,h4{text-align:center!important}
 .tdbottom{vertical-align:bottom}
 .tdmiddle{vertical-align:middle}
 
-.titlet1{margin-top:1.5em;margin-bottom:1.5em;font-size:1.6em}
+.titlet1{margin-top:1.5em;margin-bottom:1.5em;font-size:1.6em;font-weight:bold}
 .titlet2{font-size:0.9em}
 .titlet3{font-size:1.0em;margin-top:-0.5em}
 

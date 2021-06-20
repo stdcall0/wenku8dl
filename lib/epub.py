@@ -18,7 +18,7 @@ class Book:
     self.chapters = [None for i in range(0, chapter_cnt)]
     self.book_id = book_id
     self.lock = threading.Lock()
-    self.titlePage = self.addChapter(-1, title, INTRO(title, meta['creator'], book_id), "title")
+    self.titlePage = self.addChapter(-1, "标题", INTRO(title, meta['creator'], book_id), "title")
     self.makerPage = self.addChapter(-1, "制作信息", MAKERINFO(meta['creator']), "makerinfo")
 
   def addImage(self, filename, content):
