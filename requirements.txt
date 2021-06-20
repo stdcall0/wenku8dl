@@ -1,5 +1,4 @@
 beautifulsoup4==4.9.3
-bs4==0.0.1
 EbookLib==0.17.1
 fs==2.4.13
 future==0.18.2

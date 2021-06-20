@@ -156,7 +156,9 @@ class Wenku8:
     }
 
   def get_page(self, url_page: str, title: str = ''):
-    __, __, soup = reqr(True, 'get', url_page)
+    __, html = reqr(False, 'get', url_page)
+    html = re.sub(r"\[sup\](.{1,50})\[\/sup\]", r"<sup>\1</sup>", html)
+    soup = Soup(html, parser=parser)
     content = soup.select('#content')[0]
     [s.extract() for s in content("ul")] # 去除 <ul>
     return "<h1>%s</h1>%s" % (title, content.prettify(formatter="html"))

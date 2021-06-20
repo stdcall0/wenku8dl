@@ -10,22 +10,7 @@
 
 目前还不能下载无版权书~~懒得写~~，可以去原地址看看。
 
-可以通过编辑 `lib\constants.py` 中的 `options` 来调整选项，选项说明如下:
-```python3
-options = {
-  "forceCover": False, # 强制 epub 使用图书封面，而非从插图中自动推断。
-  "moreAuthor": False, # 添加贡献者与发布者到 EPUB 元数据中。
-  "moreMeta": True, # 添加最后更新日期与简介到 EPUB 元数据中。
-  "downloadImage": True, # 下载图像到 EPUB 文件中。
-  "noImage": False, # 去除所有图像，包括未下载图像时的原链接。
-  "simplifyTitle": True, # 简化标题。如 刀剑神域(SAO／ALO／GGO／UW) -> 刀剑神域，弱角友崎同学(弱势角色友崎君) -> 弱角友崎同学。
-  'chapterPool': True, # 多线程下载章节。
-  'imgPool': False, # 多线程下载图片。不建议开启，因为更慢。 
-  "account": ['lanceliang', '1352040930lxr'], # 搜索用到的账号密码。默认值来自原脚本。
-  "debug": False, # 调试模式，会将日志等级调到 debug.
-  "outputDir": "output" # 输出文件夹
-}
-```
+可以通过编辑 `lib\constants.py` 中的 `options` 来调整选项，说明见文件注释。
 
 ### 使用说明
 需要 `Python 3.9+`
@@ -46,4 +31,4 @@ options = {
 
 ### TODO
 - [ ] 下载无版权小说
-- [ ] 优化输出排版
+- [x] 优化输出排版
