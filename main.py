@@ -1,15 +1,13 @@
 import sys, os
-from logging import getLogger, INFO
 
-from lib import logger, wk8
+from lib import wk8
+from lib.logger import getLogger
 from lib.constants import *
 
-logger.enable()
 L = getLogger("main")
-if not options['debug']: L.setLevel(INFO)
 w = wk8.Wenku8()
 
-if not os.path.exists(options['outputDir']): os.makedirs(options['outputDir'])
+if not os.path.exists(OPT['outputDir']): os.makedirs(OPT['outputDir'])
 
 for i in sys.argv[1:]:
   try:

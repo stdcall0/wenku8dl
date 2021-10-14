@@ -1,18 +1,24 @@
-options = {
-  "forceCover": False, # 强制 epub 使用图书封面，而非从插图中自动推断。
-  "moreAuthor": True, # 添加贡献者与发布者到 EPUB 元数据中。
+# 可调整的选项
+OPT = {
+  "forceCover": False, # 强制 epub 使用简介的封面，而非使用插图的第一张图片。
+  "downloadCover": True, # 是否下载封面。
+  "downloadImage": True, # 是否下载插图。
+  "noImage": False, # 删除所有图片，包括未下载时的原链接。
+  "moreAuthor": False, # 添加贡献者与发布者到 EPUB 元数据中。
   "moreMeta": True, # 添加最后更新日期与简介到 EPUB 元数据中。
-  "downloadImage": True, # 下载图像到 EPUB 文件中。
-  "noImage": False, # 去除所有图像，包括未下载图像时的原链接。
-  "simplifyTitle": True, # 简化标题。如 刀剑神域(SAO／ALO／GGO／UW) -> 刀剑神域，弱角友崎同学(弱势角色友崎君) -> 弱角友崎同学。
+  "simplifyTitle": True, # 简化标题。如 刀剑神域(SAO／ALO／GGO／UW) -> 刀剑神域。
   'chapterPool': True, # 多线程下载章节。
   'imgPool': True, # 多线程下载图片。
   "account": ['lanceliang', '1352040930lxr'], # 搜索用到的账号密码。默认值来自原脚本。
   "debug": False, # 调试模式，会将日志等级调到 debug.
   "outputDir": "output" # 输出文件夹
 }
-
-api = {
+# 日志输出格式，可用变量 %(asctime/name/levelname/message)s，可用控制符 $BOLD $RESET
+LOGGER_TEXT = "<%(name)s> $BOLD%(levelname)s$RESET %(message)s"
+# 是否启用色彩
+LOGGER_COLORED = True
+# Wenku8 页面地址
+API = {
   "book": "https://www.wenku8.net/novel/%s/%d/",
   "info": "https://www.wenku8.net/book/%d.htm",
   "img": "https://img.wenku8.com/image/%s/%d/%ds.jpg",
@@ -20,22 +26,21 @@ api = {
   "search1": 'http://www.wenku8.net/modules/article/search.php?searchtype=articlename&searchkey=%s',
   "search2": 'http://www.wenku8.net/modules/article/search.php?searchtype=author&searchkey=%s',
   "txt": 'http://dl.wenku8.com/down.php?type=txt&id=%d'
-} # Wenku8 页面地址
-
+}
 # Wenku8 图源前缀，将会下载以这些链接开头的图片
-img_splits = ['http://pic.wenku8.com/pictures/', 'http://pic.wkcdn.com/pictures/', 'http://picture.wenku8.com/pictures/']
+IMG_PREFIXES = ['http://pic.wenku8.com/pictures/', 'http://pic.wkcdn.com/pictures/', 'http://picture.wenku8.com/pictures/']
 # 使用的 User-Agent
-ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"}
+USER_AGENT = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"}
 # 使用到的 Content-Type
-cts = {
+CONTENT_TYPES = {
   'post': {'Content-Type': 'application/x-www-form-urlencoded'},
   'formdata': {'Content-Type': 'multipart/form-data; boundary=--------------------------607040101744888865545920'}
 }
 # BeautifulSoup 使用的解析器。如果有也可以使用 lxml，速度更快
-parser = "html.parser"
+PARSER = "html.parser"
 try:
   import lxml
-  parser = "lxml"
+  PARSER = "lxml"
 except: pass
 
 # EPUB 每个页面的模板

@@ -1,15 +1,20 @@
-from logging import getLogger, INFO
-import requests as R, bs4, re, os, threading
+import os, re, threading
+
+import requests as R
 from bs4 import BeautifulSoup as Soup
+from html import unescape
+
 from lib import epub
+from lib.logger import getLogger
 from lib.constants import *
 
 def req(method : str, url : str, headers : dict = {}, payload : dict = {}, cookies = None):
-  return R.request(method, url, headers = headers | ua, data = payload, cookies = cookies)
+  return R.request(method, url, headers = headers | USER_AGENT, data = payload, cookies = cookies)
+
 def reqr(soup : bool, method : str, url : str, headers : dict = {}, payload : dict = {}, cookies = None):
-  res = R.request(method, url, headers = headers | ua, data = payload, cookies = cookies)
-  html = res.content.decode("gbk", errors="ignore")
-  if soup: return res, html, Soup(html, parser)
+  res = R.request(method, url, headers = headers | USER_AGENT, data = payload, cookies = cookies)
+  html = unescape(res.content.decode("gbk", errors="ignore"))
+  if soup: return res, html, Soup(html, PARSER)
   else: return res, html
 
 class Wenku8:
@@ -20,12 +25,11 @@ class Wenku8:
     self.image_total = 0
     self.book = None
     self.L = getLogger("wenku8")
-    if not options['debug']: self.L.setLevel(INFO)
 
-  def login(self, username= options['account'][0], password= options['account'][1]):
+  def login(self, username= OPT['account'][0], password= OPT['account'][1]):
     self.L.debug("正在登陆: 使用账号 %s 密码 %s" % (username, password))
     data = {'action': 'login', 'jumpurl': '', 'username': username, 'password': password}
-    res, html = reqr(False, 'post', api['login'], cts['post'], data)
+    res, html = reqr(False, 'post', API['login'], CONTENT_TYPES['post'], data)
     if '登录成功' not in html:
       self.L.error("登陆失败: 返回内容 %s" % html)
       return False
@@ -45,12 +49,12 @@ class Wenku8:
       if not self.is_login():
         self.L.error("登陆失败，无法搜索。")
         return False
-    m1 = self.search_one(api["search1"], key)
-    m2 = self.search_one(api["search2"], key)
+    m1 = self.search_one(API["search1"], key)
+    m2 = self.search_one(API["search2"], key)
     self.L.debug("搜索 %s: 结果共 %d 条，API 1: %d, API 2: %d" % (key, len(m1) + len(m2), len(m1), len(m2)))
     return m1 + m2
 
-  def search_one(self, api: str, key: str):
+  def search_one(self, API: str, key: str):
     if not self.is_login():
       return []
     headers = {'Cookie': self.cookies}
@@ -58,9 +62,9 @@ class Wenku8:
     key_arg = ''
     for i in range(0, len(encodings), 2):
       key_arg += "%%%s%s" % (encodings[i], encodings[i + 1])
-    self.L.debug("搜索: URL: %s" % api % key_arg)
+    self.L.debug("搜索: URL: %s" % API % key_arg)
 
-    res, html, soup = reqr(True, "get", api % key_arg, headers, {}, self.cookie_jar)
+    res, html, soup = reqr(True, "get", API % key_arg, headers, {}, self.cookie_jar)
 
     if '推一下' in html:
       title = soup.find_all('b')[1].get_text()
@@ -88,7 +92,7 @@ class Wenku8:
       }
       self.L.debug("搜索: 书名 %s, ID %d, 封面链接 %s, 状态 %s, 简介 %s" % (title, bid, cover, status, brief))
       return [book, ]
-    
+
     td = soup.find('td')
     if td is None: return []
     books = []
@@ -113,7 +117,7 @@ class Wenku8:
     return books
 
   def bookinfo(self, book_id: int):
-    url = "%s%s" % (api["book"] % (("%04d" % book_id)[0], book_id), "index.htm")
+    url = "%s%s" % (API["book"] % (("%04d" % book_id)[0], book_id), "index.htm")
     self.L.debug("图书信息: %d: URL %s" % (book_id, url))
     __, html, soup = reqr(True, "get", url)
     table = soup.select('table')
@@ -121,7 +125,7 @@ class Wenku8:
       self.L.error("图书信息: 无法获取，更多信息请打开调试模式")
       self.L.debug("返回页面: %s" % html)
       return None
-    
+
     table = table[0]
     if len(soup.select("#title")) == 0:
       self.L.error("图书信息: 该书不存在。")
@@ -129,10 +133,10 @@ class Wenku8:
 
     title = soup.select("#title")[0].get_text()
     author = soup.select("#info")[0].get_text().split('作者：')[-1]
-    url_cover = api["img"] % (("%04d" % book_id)[0], book_id, book_id)
+    url_cover = API["img"] % (("%04d" % book_id)[0], book_id, book_id)
 
     brief = ''
-    url = api["info"] % (book_id)
+    url = API["info"] % (book_id)
     __, html, soup = reqr(True, "get", url)
     update = ''
     for td in soup.find_all('td'):
@@ -158,10 +162,10 @@ class Wenku8:
   def get_page(self, url_page: str, title: str = ''):
     __, html = reqr(False, 'get', url_page)
     html = re.sub(r"\[sup\](.{1,50})\[\/sup\]", r"<sup>\1</sup>", html)
-    soup = Soup(html, parser=parser)
+    soup = Soup(html, PARSER)
     content = soup.select('#content')[0]
     [s.extract() for s in content("ul")] # 去除 <ul>
-    return "<h1>%s</h1>%s" % (title, content.prettify(formatter="html"))
+    return "<h1>%s</h1>%s" % (title, unescape(unescape(content.prettify())))
 
   def fetch_img(self, url_img: str):
     self.image_count += 1
@@ -173,22 +177,22 @@ class Wenku8:
     return True
 
   def isImg(self, x):
-    for i in img_splits:
+    for i in IMG_PREFIXES:
       if i in x: return True
     return False
 
   def fetch_chapter(self, a, order: int):
     title_page = a.get_text()
-    url_page = "%s%s" % (api['book'] % (("%04d" % self.book.book_id)[0], self.book.book_id), a.get('href'))
+    url_page = "%s%s" % (API['book'] % (("%04d" % self.book.book_id)[0], self.book.book_id), a.get('href'))
     self.L.debug("%s下载: %s: %s - %s" % ("插图" if title_page == "插图" else "章节", title_page, a.get('href'), url_page))
-    soup = Soup(self.get_page(url_page, title=title_page), parser)
+    soup = Soup(self.get_page(url_page, title=title_page), PARSER)
     imgcontent = soup.select(".imagecontent")
 
-    if not options['noImage']:
+    if not OPT['noImage']:
       if len(imgcontent) > 0:
         self.L.debug("图书下载: %s: 可能的封面: %s" % (title_page, imgcontent[0].get("src")))
         self.cover_frombook = imgcontent[0].get("src")
-      if options['downloadImage']:
+      if OPT['downloadImage']:
         img_pool = []
         imgcontent = [i for i in filter(lambda x: self.isImg(x.get("src")), imgcontent)]
         self.image_total += len(imgcontent)
@@ -199,11 +203,11 @@ class Wenku8:
           if img.parent.name == 'a':
             img.parent.unwrap()
           th = threading.Thread(target=self.fetch_img, args=(url_img,), daemon=True)
-          if options['imgPool']: th.start()
+          if OPT['imgPool']: th.start()
           img_pool.append(th)
 
         for it in img_pool: # no multi thread, one by one is significantly quicker
-          if not options['imgPool']: it.start()
+          if not OPT['imgPool']: it.start()
           it.join()
       else:
         for img in imgcontent:
@@ -214,8 +218,8 @@ class Wenku8:
         if i.parent.name == 'a':
           i.parent.unwrap()
         i.extract()
-    
-    self.book.addChapter(order, title_page, soup.prettify(formatter="html"))
+
+    self.book.addChapter(order, title_page, unescape(unescape(soup.prettify())))
 
   def get_volume(self, book_id: int, book_info: dict[str], volume_index: int, hrefs: list[str], sub_title: str, base_title: str, author: str, backup_cover: str):
     self.cover_frombook = None
@@ -236,25 +240,30 @@ class Wenku8:
       self.L.info("图书分卷 %s %s: 正在下载 %d / %d" % (base_title, sub_title, index + 1, len(hrefs)))
       self.L.debug("准备下载章节: %s" % href)
       th = threading.Thread(target=self.fetch_chapter, args=(href, index), daemon=True)
-      if options['chapterPool']: th.start()
+      if OPT['chapterPool']: th.start()
       pool.append(th)
     for th in pool:
-      if not options['chapterPool']: th.start()
+      if not OPT['chapterPool']: th.start()
       th.join()
 
-    if self.cover_frombook is None:
-      cover_file = backup_cover
+    fn = OPT['outputDir'] + "\\[%s][%s][%.3d]%s.epub" % (author, base_title, volume_index + 1, sub_title)
+    if OPT['noImage'] or not OPT['downloadCover']:
+      self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
+      return self.book.finalize(fn, None, None)
     else:
-      cover_file = self.cover_frombook
-    cover_data = req('get', cover_file).content
-    __, cover_ext = os.path.splitext(cover_file)
-    self.L.debug("图书分卷 %s %s: 采用封面 [%d]: %s" % (base_title, sub_title, len(cover_data), cover_file))
-    fn = "output\\[%s][%s][%.3d]%s.epub" % (author, base_title, volume_index + 1, sub_title)
-    self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
-    return self.book.finalize(fn, cover_data, cover_ext)
+      if self.cover_frombook is None:
+        cover_file = backup_cover
+      else:
+        cover_file = self.cover_frombook
+      cover_data = req('get', cover_file).content
+      cover_data = b""
+      __, cover_ext = os.path.splitext(cover_file)
+      self.L.debug("图书分卷 %s %s: 采用封面 [%d]: %s" % (base_title, sub_title, len(cover_data), cover_file))
+      self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
+      return self.book.finalize(fn, cover_data, cover_ext)
 
   def get_book(self, book_id: int, book_info: dict[str]):
-    book_url = "%s%s" % (api['book'] % (("%04d" % book_id)[0], book_id), "index.htm")
+    book_url = "%s%s" % (API['book'] % (("%04d" % book_id)[0], book_id), "index.htm")
     self.L.debug("图书下载: %d: URL %s" % (book_id, book_url))
     __, html, soup = reqr(True, 'get', book_url)
     table = soup.select('table')
@@ -269,8 +278,8 @@ class Wenku8:
 
     title = soup.select("#title")[0].get_text()
     author = soup.select("#info")[0].get_text().split('作者：')[-1]
-    url_cover = api['img'] % (("%04d" % book_id)[0], book_id, book_id)
-    if options['simplifyTitle']:
+    url_cover = API['img'] % (("%04d" % book_id)[0], book_id, book_id)
+    if OPT['simplifyTitle']:
       title = re.sub(r"\(.*?\)", "", title)
       book_info['name'] = re.sub(r"\(.*?\)", "", book_info['name'])
 
