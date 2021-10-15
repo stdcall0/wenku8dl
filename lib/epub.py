@@ -56,6 +56,7 @@ class Book:
       self.book.set_cover('images/cover' + cover_ext, cover_data, False)
       self.coverPage = self.addChapter(-1, "封面", COVER('images/cover' + cover_ext), "cover")
     else:
+      L.warning("empty cover data, skipping!")
       self.coverPage = None
 
     toc = ([ENTRY('cover.xhtml', -1, '封面')] if has_cover else []) + [ENTRY('title.xhtml', -1, '标题'), ENTRY('makerinfo.xhtml', -1, '制作信息'), ENTRY('contents.xhtml', -1, '目录')]

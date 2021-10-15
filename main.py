@@ -13,7 +13,7 @@ for i in sys.argv[1:]:
   try:
     id = int(i)
     info = w.bookinfo(id)
-    L.info("ID: %d, 标题: %s, 作者: %s, 简介: %s" % (id, info['name'], info['author'], info['brief']))
+    L.info("下载中: %d %s %s" % (id, info['author'], info['name']))
     w.get_book(id, info)
   except ValueError:
     L.info("搜索并下载: %s" % i)
@@ -21,3 +21,5 @@ for i in sys.argv[1:]:
       L.info('搜索结果: %s，下载中.' % b['title'])
       info = w.bookinfo(b['bid'])
       w.get_book(b['bid'], info)
+
+print(' '*200, end='\r')

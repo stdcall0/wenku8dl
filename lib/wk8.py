@@ -1,8 +1,7 @@
 import os, re, threading
 
-import requests as R
+import bs4, requests as R
 from bs4 import BeautifulSoup as Soup
-from html import unescape
 
 from lib import epub
 from lib.logger import getLogger
@@ -13,9 +12,19 @@ def req(method : str, url : str, headers : dict = {}, payload : dict = {}, cooki
 
 def reqr(soup : bool, method : str, url : str, headers : dict = {}, payload : dict = {}, cookies = None):
   res = R.request(method, url, headers = headers | USER_AGENT, data = payload, cookies = cookies)
-  html = unescape(res.content.decode("gbk", errors="ignore"))
+  html = res.content.decode("gbk", errors="ignore")
   if soup: return res, html, Soup(html, PARSER)
   else: return res, html
+
+mxLen = 0
+def progressBar(pre, x, y):
+  global mxLen
+  print(' '*(mxLen * 2), end='\r')
+  CNT = 20
+  spc = CNT * x // y
+  p = "%s: %d/%d [%s%s]" % (pre, x,y, "=" * spc, "." * (CNT - spc))
+  mxLen = max(mxLen, len(p))
+  print(p, end='\r')
 
 class Wenku8:
   def __init__(self):
@@ -165,15 +174,15 @@ class Wenku8:
     soup = Soup(html, PARSER)
     content = soup.select('#content')[0]
     [s.extract() for s in content("ul")] # 去除 <ul>
-    return "<h1>%s</h1>%s" % (title, unescape(unescape(content.prettify())))
+    return "<h1>%s</h1>%s" % (title, content.prettify())
 
   def fetch_img(self, url_img: str):
-    self.image_count += 1
-    self.L.info("图片: 正在下载 %d / %d" % (self.image_count, self.image_total))
     self.L.debug("图片链接为: %s" % url_img)
     data_img = req('get', url_img).content
     filename = os.path.basename(url_img)
     self.book.addImage(filename, data_img)
+    self.image_count += 1
+    progressBar(self.chapter_name + " 插图", self.image_count, self.image_total)
     return True
 
   def isImg(self, x):
@@ -219,7 +228,9 @@ class Wenku8:
           i.parent.unwrap()
         i.extract()
 
-    self.book.addChapter(order, title_page, unescape(unescape(soup.prettify())))
+    self.chapter_count += 1
+    progressBar(self.chapter_name, self.chapter_count, self.chapter_total)
+    self.book.addChapter(order, title_page, soup.prettify())
 
   def get_volume(self, book_id: int, book_info: dict[str], volume_index: int, hrefs: list[str], sub_title: str, base_title: str, author: str, backup_cover: str):
     self.cover_frombook = None
@@ -234,11 +245,10 @@ class Wenku8:
       "description": book_info["brief"]
     }, book_id, "%s %s" % (base_title, sub_title), len(hrefs))
     pool = []
-    self.image_count = 0
-    self.image_total = 0
+    self.image_count = self.image_total = self.chapter_count = 0
+    self.chapter_name = "%s %s" % (base_title, sub_title)
+    self.chapter_total = len(hrefs)
     for index, href in enumerate(hrefs):
-      self.L.info("图书分卷 %s %s: 正在下载 %d / %d" % (base_title, sub_title, index + 1, len(hrefs)))
-      self.L.debug("准备下载章节: %s" % href)
       th = threading.Thread(target=self.fetch_chapter, args=(href, index), daemon=True)
       if OPT['chapterPool']: th.start()
       pool.append(th)
@@ -248,7 +258,7 @@ class Wenku8:
 
     fn = OPT['outputDir'] + "\\[%s][%s][%.3d]%s.epub" % (author, base_title, volume_index + 1, sub_title)
     if OPT['noImage'] or not OPT['downloadCover']:
-      self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
+      # self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
       return self.book.finalize(fn, None, None)
     else:
       if self.cover_frombook is None:
@@ -259,7 +269,7 @@ class Wenku8:
       cover_data = b""
       __, cover_ext = os.path.splitext(cover_file)
       self.L.debug("图书分卷 %s %s: 采用封面 [%d]: %s" % (base_title, sub_title, len(cover_data), cover_file))
-      self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
+      # self.L.info("图书分卷 %s %s: 保存到 %s" % (base_title, sub_title, fn))
       return self.book.finalize(fn, cover_data, cover_ext)
 
   def get_book(self, book_id: int, book_info: dict[str]):
