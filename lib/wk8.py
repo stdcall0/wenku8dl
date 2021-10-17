@@ -174,7 +174,7 @@ class Wenku8:
     soup = Soup(html, PARSER)
     content = soup.select('#content')[0]
     [s.extract() for s in content("ul")] # 去除 <ul>
-    return "<h1>%s</h1>%s" % (title, content.prettify())
+    return "<h1>%s</h1>%s" % (title, content.prettify(formatter="html"))
 
   def fetch_img(self, url_img: str):
     self.L.debug("图片链接为: %s" % url_img)
@@ -230,7 +230,7 @@ class Wenku8:
 
     self.chapter_count += 1
     progressBar(self.chapter_name, self.chapter_count, self.chapter_total)
-    self.book.addChapter(order, title_page, soup.prettify())
+    self.book.addChapter(order, title_page, soup.prettify(formatter="html"))
 
   def get_volume(self, book_id: int, book_info: dict[str], volume_index: int, hrefs: list[str], sub_title: str, base_title: str, author: str, backup_cover: str):
     self.cover_frombook = None
